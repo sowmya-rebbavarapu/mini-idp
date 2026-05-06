@@ -1,0 +1,45 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+
+          script: |
+            cd mini-idp/templates/node-app
+
+            # Pull latest code
+            git pull origin main
+
+            # Stop old container if running
+            sudo docker stop idp-container || true
+
+            # Remove old container completely
+            sudo docker rm -f idp-container || true
+
+            # Remove old image
+            sudo docker rmi -f idp-app || true
+
+            # Build fresh Docker image
+            sudo docker build -t idp-app .
+
+            # Run new container
+            sudo docker run -d -p 3000:3000 --name idp-container idp-app
+
+            # Show running containers
+            sudo docker ps

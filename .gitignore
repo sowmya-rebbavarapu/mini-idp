@@ -1,0 +1,20 @@
+# Node
+node_modules/
+npm-debug.log
+
+
+
+
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+*.pem
+
+
+# Environment
+.env
+
+# Build outputs
+dist/
+build/

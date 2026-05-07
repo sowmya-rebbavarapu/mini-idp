@@ -99,10 +99,11 @@ resource "aws_instance" "idp_server" {
     Name        = "Mini-IDP"
 
     Environment = "Dev"
-
+    Owner       = "Platform-Team"
+    Governance  = "Enabled"
+    ManagedBy   = "Terraform"
     Project     = "Platform-Engineering"
   }
-
   # ⚙️ Install Docker automatically
   user_data = <<-EOF
               #!/bin/bash

@@ -183,7 +183,3 @@ GOVERNANCE.md
 
 ---
 
-# 👩‍💻 Author
-
-Developed as part of:
-Project 9 — Platform Engineering (Mini Internal Developer Platform)

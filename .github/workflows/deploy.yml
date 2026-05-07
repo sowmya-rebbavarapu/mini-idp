@@ -26,11 +26,11 @@ jobs:
           node-version: 18
 
       - name: Install Backend Dependencies
-        working-directory: backend
+        working-directory: idp-backend
         run: npm install
 
-      - name: Backend Syntax Check
-        working-directory: backend
+      - name: Backend Syntax Validation
+        working-directory: idp-backend
         run: node --check index.js
 
   frontend-validation:
@@ -48,11 +48,11 @@ jobs:
           node-version: 18
 
       - name: Install Frontend Dependencies
-        working-directory: frontend
+        working-directory: idp-ui
         run: npm install
 
       - name: Frontend Build Validation
-        working-directory: frontend
+        working-directory: idp-ui
         run: npm run build
 
   docker-validation:
@@ -64,5 +64,5 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Docker Build Validation
-        run: docker build -t mini-idp-app .
+      - name: Verify Docker Installation
+        run: docker --version

@@ -1,8 +1,10 @@
 const express = require("express");
 const cors = require("cors");
 const { exec } = require("child_process");
+const path = require("path");
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
@@ -10,108 +12,154 @@ app.use(express.json());
    🧪 Health Check
 =========================== */
 app.get("/", (req, res) => {
+
   res.send("Backend running 🚀");
 });
-app.post("/deploy", (req, res) => {
-  console.log("🚀 Deploy triggered");
-
-  const ip = "65.1.1.20";
-  const repo = "https://github.com/YOUR_USERNAME/YOUR_NODE_APP_REPO.git";
-
-  const command = `
-  ssh -o StrictHostKeyChecking=no -i ../infra/pemfile.pem ec2-user@${ip} "
-    rm -rf app &&
-    git clone ${repo} app &&
-    cd app &&
-    docker build -t idp-app . &&
-    docker stop idp-container || true &&
-    docker rm idp-container || true &&
-    docker run -d -p 3000:3000 --name idp-container idp-app
-  "
-  `;
-
-  exec(command, (error, stdout, stderr) => {
-    if (error) {
-      console.error("❌ Deploy error:", error.message);
-      return res.send("Deployment failed ❌");
-    }
-
-    res.send(`App deployed at http://${ip}:3000 🚀`);
-  });
-});
-
-
 
 /* ===========================
-   ☁️ EC2 via Terraform
+   ☁️ Create EC2
 =========================== */
 app.post("/create-ec2", (req, res) => {
-  console.log("Running Terraform...");
 
-  // Step 1: Apply Terraform
+  console.log("☁️ Running Terraform...");
+
   exec(
-    "cd ../infra && terraform apply -auto-approve -lock=false",
+    "cd ../infra/ec2 && terraform init && terraform apply -auto-approve -lock=false",
     (error, stdout, stderr) => {
 
-      if (error) {
-        console.error("❌ Terraform Error:", error.message);
-        return res.status(500).send("Terraform failed ❌");
+      console.log(stdout);
+
+      if (stderr) {
+        console.log(stderr);
       }
 
-      console.log("✅ Apply done");
+      if (error) {
 
-      // Step 2: Fetch public IP
-      exec("cd ../infra && terraform output public_ip", (err, ip) => {
+        console.error(
+          "❌ Terraform Error:",
+          error.message
+        );
 
-        if (err) {
-          console.error("❌ Output error:", err.message);
-          return res.send("EC2 created but IP not fetched");
+        return res
+          .status(500)
+          .send("Terraform failed ❌");
+      }
+
+      console.log(
+        "✅ Terraform Apply Done"
+      );
+
+      // Fetch EC2 Public IP
+      exec(
+        "cd ../infra/ec2 && terraform output public_ip",
+        (err, ip) => {
+
+          if (err) {
+
+            console.error(
+              "❌ Output Error:",
+              err.message
+            );
+
+            return res.send(
+              "EC2 created but IP not fetched ❌"
+            );
+          }
+
+          // Clean output
+          const cleanIP =
+            ip.replace(/"/g, "").trim();
+
+          console.log(
+            "🌐 EC2 Public IP:",
+            cleanIP
+          );
+
+          res.send(cleanIP);
         }
-
-        // Clean output (removes quotes/newlines)
-        const cleanIP = ip.replace(/"/g, "").trim();
-
-        res.send(cleanIP);
-      });
+      );
     }
   );
 });
-/* ===========================
-   📦 S3 (placeholder for now)
-=========================== */
-app.post("/create-s3", (req, res) => {
-  console.log("S3 bucket creation triggered");
-
-  // Later: integrate AWS SDK
-  res.send("S3 bucket created (demo) 📦");
-});
 
 /* ===========================
-   📊 Logs (Docker)
+   🚀 Deploy App
 =========================== */
-app.get("/logs", (req, res) => {
-  exec("docker ps", (error, stdout, stderr) => {
+app.post("/deploy", (req, res) => {
+
+  const { repoUrl, ip } = req.body;
+
+  console.log("🚀 Deploy triggered");
+
+  console.log("📦 Repo:", repoUrl);
+
+  console.log("🌐 EC2 IP:", ip);
+
+  // PEM file path
+  const pemPath = path.join(
+    __dirname,
+    "../infra/ec2/pemfile.pem"
+  );
+
+  // Simple single-line SSH command
+  const command =
+    `ssh -o StrictHostKeyChecking=no -i "${pemPath}" ec2-user@${ip} ` +
+    `"rm -rf app && ` +
+    `git clone ${repoUrl} app && ` +
+    `cd app && ` +
+    `sudo docker build -t idp-app . && ` +
+    `sudo docker stop idp-container || true && ` +
+    `sudo docker rm idp-container || true && ` +
+    `sudo docker run -d --restart unless-stopped -p 3000:3000 --name idp-container idp-app"`;
+
+  console.log("📄 Running Command:\n", command);
+
+  exec(command, (error, stdout, stderr) => {
+
+    console.log("📄 STDOUT:\n", stdout);
+
+    console.log("⚠️ STDERR:\n", stderr);
 
     if (error) {
-      console.error("❌ Docker Error:", error.message);
-      return res.status(500).send("Error fetching logs ❌");
+
+      console.error(
+        "❌ Deployment Failed:",
+        error.message
+      );
+
+      return res.status(500).send({
+        success: false,
+        message: "Deployment failed ❌",
+        error: stderr || error.message
+      });
     }
 
-    res.send(stdout);
+    console.log("✅ Deployment Success");
+
+    res.send({
+      success: true,
+      message:
+        `🚀 App deployed at http://${ip}:3000`
+    });
   });
 });
 
 /* ===========================
-   ❌ Catch Unknown Routes
+   ❌ Unknown Routes
 =========================== */
 app.use((req, res) => {
-  console.log("Unknown route:", req.method, req.url);
-  res.status(404).send("Route not found ❌");
+
+  res
+    .status(404)
+    .send("Route not found ❌");
 });
 
 /* ===========================
    🚀 Start Server
 =========================== */
 app.listen(5000, () => {
-  console.log("Server running on port 5000 🚀");
+
+  console.log(
+    "Server running on port 5000 🚀"
+  );
 });

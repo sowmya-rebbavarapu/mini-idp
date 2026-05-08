@@ -372,10 +372,10 @@
 //   );
 // });
 const validateRepo =
-  require("./governance/validateRepo");
+  require("../governance/validateRepo");
 
 const validateNaming =
-  require("./governance/validateNaming");
+  require("../governance/validateNaming");
 
 const express = require("express");
 const cors = require("cors");

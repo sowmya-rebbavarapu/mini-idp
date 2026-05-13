@@ -111,7 +111,6 @@ MINI-IDP/
 ├── MONITORING.md
 ├── ONBOARDING.md
 ├── image.png
-├── image-1.png
 └── README.md
 
 ---
@@ -185,11 +184,6 @@ GOVERNANCE.md
 # 🚀 Future Enhancements
 
 - Kubernetes deployment support
-- CI/CD pipeline integration
 - Role-based access control
-- Auto-scaling
-- HTTPS & domain support
-- Alertmanager integration
-
 ---
 

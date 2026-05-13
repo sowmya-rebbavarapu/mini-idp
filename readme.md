@@ -17,20 +17,7 @@ This project demonstrates core Platform Engineering concepts including self-serv
 
 # 🏗️ Architecture
 
-Frontend UI
-↓
-Backend API (Node.js + Express)
-↓
-Terraform Infrastructure Provisioning
-↓
-EC2 Instance Creation
-↓
-Docker-based Application Deployment
-↓
-Monitoring Stack
-- Node Exporter
-- Prometheus
-- Grafana
+![alt text](image.png)
 
 ---
 
@@ -82,27 +69,50 @@ Standardized deployment pipeline:
 
 # 📂 Project Structure
 
-```bash
-mini-idp/
+```text
+MINI-IDP/
 │
-├── backend/
-│   ├── governance/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml
+│
+├── governance/
+│   ├── validateDockerfile.js
+│   ├── validateNaming.js
+│   ├── validatePorts.js
+│   └── validateRepo.js
+│
+├── idp-backend/
 │   ├── logs/
-│   └── index.js
+│   ├── node_modules/
+│   ├── index.js
+│   ├── package.json
+│   └── package-lock.json
 │
-├── frontend/
+├── idp-ui/
+│   ├── public/
+│   ├── src/
+│   ├── .env
+│   ├── package.json
+│   ├── package-lock.json
+│   └── README.md
 │
 ├── infra/
-│   └── ec2/
+│   ├── terraform/
+│   ├── ec2/
+│       ├── main.tf
+│       ├── outputs.tf
+│       └── pemfile.pem
+│── templates/
 │
-├── templates/
-│
-├── README.md
-├── GOVERNANCE.md
-├── ONBOARDING.md
+├── .gitignore
 ├── ARCHITECTURE.md
-└── MONITORING.md
-```
+├── GOVERNANCE.md
+├── MONITORING.md
+├── ONBOARDING.md
+├── image.png
+├── image-1.png
+└── README.md
 
 ---
 

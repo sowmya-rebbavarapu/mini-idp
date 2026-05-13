@@ -10,6 +10,7 @@ npm-debug.log
 *.tfstate.*
 .terraform.lock.hcl
 *.pem
+.env
 
 
 # Environment

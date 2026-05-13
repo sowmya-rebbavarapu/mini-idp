@@ -23,26 +23,7 @@ The platform architecture is designed to achieve:
 
 # 🏛️ High-Level Architecture
 
-```text
-Developer
-   ↓
-Frontend UI (React.js)
-   ↓
-Backend API Layer (Node.js + Express)
-   ↓
-Governance Validation Layer
-   ↓
-Terraform Infrastructure Provisioning
-   ↓
-AWS EC2 Instance
-   ↓
-Docker-based Application Deployment
-   ↓
-Observability Stack
-   ├── Node Exporter
-   ├── Prometheus
-   └── Grafana
-```
+![alt text](image.png)
 
 ---
 
@@ -213,28 +194,49 @@ The architecture enforces:
 ---
 
 # 📂 Project Structure
-
-```bash
-mini-idp/
+```text
+MINI-IDP/
 │
-├── backend/
-│   ├── governance/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml
+│
+├── governance/
+│   ├── validateDockerfile.js
+│   ├── validateNaming.js
+│   ├── validatePorts.js
+│   └── validateRepo.js
+│
+├── idp-backend/
 │   ├── logs/
-│   └── index.js
+│   ├── node_modules/
+│   ├── index.js
+│   ├── package.json
+│   └── package-lock.json
 │
-├── frontend/
+├── idp-ui/
+│   ├── public/
+│   ├── src/
+│   ├── .env
+│   ├── package.json
+│   ├── package-lock.json
+│   └── README.md
 │
 ├── infra/
-│   └── ec2/
+│   ├── terraform/
+│   ├── ec2/
+│       ├── main.tf
+│       ├── outputs.tf
+│       └── pemfile.pem
+│── templates/
 │
-├── templates/
-│
-├── README.md
-├── GOVERNANCE.md
-├── ONBOARDING.md
+├── .gitignore
 ├── ARCHITECTURE.md
-└── MONITORING.md
-```
+├── GOVERNANCE.md
+├── MONITORING.md
+├── ONBOARDING.md
+├── image.png
+└── README.md
 
 ---
 
